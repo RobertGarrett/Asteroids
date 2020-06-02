@@ -1,5 +1,6 @@
-const Util = require('./util.js');
-const MovingObject = require('./moving_object.js');
+const Util = require('./util');
+const MovingObject = require('./moving_object');
+const Ship = require('./ship');
 
 function Asteroid(opts = {}){
     opts.color = Asteroid.COLOR;
@@ -15,5 +16,10 @@ Asteroid.RADIUS = 25;
 Asteroid.SPEED = 300;
 
 Util.inherits(Asteroid, MovingObject);
+
+Asteroid.prototype.collideWith = function(obj){
+    if( obj instanceof Ship )
+        obj.relocate();
+};
 
 module.exports = Asteroid;

@@ -18,7 +18,11 @@ MovingObject.prototype.draw = function (ctx) {
 MovingObject.prototype.move = function(fps){
     this.pos[0] += this.vel[0]/fps;
     this.pos[1] += this.vel[1]/fps;
-    this.pos = this.game.wrap(this.pos, this.radius);
+
+    if( this.isWrappable )
+        this.pos = this.game.wrap(this.pos, this.radius);
+    else if( this.game.isOutOfBounds(this.pos) )
+        this.game.remove(this);
 };
 
 MovingObject.prototype.isCollidedWith = function(obj){
@@ -27,6 +31,8 @@ MovingObject.prototype.isCollidedWith = function(obj){
     //console.log(`dist: ${dist}, min: ${min}`);
     return dist < min;
 };
+
+MovingObject.prototype.isWrappable = true;
 
 MovingObject.prototype.collideWith = function(obj){};
 

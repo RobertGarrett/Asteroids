@@ -1,27 +1,33 @@
 const Ship = require('./ship');
 const Asteroid = require('./asteroid');
+const Bullet = require('./bullet');
 const Util = require('./util');
 
 function Game(){
     this.asteroids = [];
-    this.ship = new Ship({ game: this });
+    this.bullets = [];
+    this.ship = new Ship(this);
 
     this.addAsteroids();
 }
 
+Game.BG = '../images/space.jpg';
 Game.BG_COLOR = "#000000";
 Game.DIM_X = 1000;
 Game.DIM_Y = 600;
-Game.FPS = 60;
+Game.FPS = 120;
 Game.NUM_ASTEROIDS = 10;
 
 Game.prototype.allObjects = function(){
-    return [].concat(this.asteroids, this.ship);
+    return [].concat(this.asteroids, this.bullets, this.ship);
 };
+Game.prototype.nonAsteroids = function(){
+    return [].concat(this.bullets, this.ship);
+}
 
 Game.prototype.addAsteroids = function(){
     while(this.asteroids.length < Game.NUM_ASTEROIDS)
-        this.asteroids.push( new Asteroid({game: this}) );
+        this.add( new Asteroid(this) );
 };
 
 Game.prototype.addShip = function(){
@@ -55,13 +61,12 @@ Game.prototype.wrap = function(pos, radius){
 };
 
 Game.prototype.checkCollisions = function(){
-    let objects = this.allObjects();
-    for(var i = 0; i < objects.length-1; i++){
-        for(var j = i + 1; j < objects.length; j++){
-            if( objects[i].isCollidedWith(objects[j]) )
-                objects[i].collideWith(objects[j]);
-        }
-    }
+    this.nonAsteroids().forEach( obj => {
+        this.asteroids.forEach( rock => {
+            if( rock.isCollidedWith(obj) )
+                rock.collideWith(obj);
+        });
+    });
 };
 
 Game.prototype.step = function(){
@@ -69,8 +74,23 @@ Game.prototype.step = function(){
     this.checkCollisions();
 };
 
-Game.prototype.remove = function(rock){
-    this.asteroids.splice(this.asteroids.indexOf(rock), 1);
+Game.prototype.add = function(obj){
+    if( obj instanceof Asteroid )
+        this.asteroids.push(obj);
+    else if( obj instanceof Bullet )
+        this.bullets.push(obj);
 };
+
+Game.prototype.remove = function(obj){
+    if( obj instanceof Asteroid )
+        this.asteroids.splice(this.asteroids.indexOf(obj), 1);
+    else if( obj instanceof Bullet )
+        this.bullets.splice(this.bullets.indexOf(obj), 1);
+};
+
+Game.prototype.isOutOfBounds = function(pos){
+    return pos[0] < 0 || Game.DIM_X < pos[0] ||
+            pos[1] < 0 || Game.DIM_Y < pos[1]
+}
 
 module.exports = Game;

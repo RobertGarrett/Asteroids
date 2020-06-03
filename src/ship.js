@@ -1,13 +1,16 @@
 const Util = require('./util');
 const MovingObject = require('./moving_object');
+const Bullet = require('./bullet.js');
 const Game = require('./game');
 
-function Ship(opts = {}){
+function Ship(game){
+    let opts = {};
     opts.color = Ship.COLOR;
-    opts.pos = opts.game.randomPosition();
+    opts.pos = game.randomPosition();
     opts.radius = Ship.RADIUS;
-    opts.vel = opts.vel || [0,0];
-
+    opts.vel = [0,0];
+    opts.game = game;
+    console.log(opts.game);
     MovingObject.call(this, opts);
 }
 
@@ -25,6 +28,10 @@ Ship.prototype.power = function(impulse){
     this.vel[0] = 50*impulse[0];
     this.vel[1] = 50*impulse[1];
     return Ship.power;
+};
+
+Ship.prototype.fireBullet= function(){
+    this.game.add( new Bullet(this.pos, this.vel, this.game) );
 };
 
 module.exports = Ship;
